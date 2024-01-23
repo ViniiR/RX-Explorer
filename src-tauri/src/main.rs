@@ -2,14 +2,21 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-#[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
-}
+
+mod tsk_mgr;
+mod fl_mgr;
 
 fn main() {
+    tsk_mgr::start_tsk_mgr();
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![greet])
+        .invoke_handler(
+            tauri::generate_handler![
+                tsk_mgr::start_tsk_mgr,
+                fl_mgr::display_disks,
+                fl_mgr::open_disk,
+                fl_mgr::open_dir
+            ]
+        )
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

@@ -1,0 +1,1 @@
+//starts on / directory and all folders must be called directories, when 2clicked it opens that directory
