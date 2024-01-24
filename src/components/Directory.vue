@@ -6,22 +6,27 @@
 
     let dir = ref<string | null>(null);
     let dirContents = ref<string | null>(null);
-    // defineProps(['currentDir']);
+
     const emits = defineEmits();
 
     function openDirectory(file: string) {
         const isDir = !file.includes('.');
-
+        
         if (isDir) {
-            invoke("open_dir", {dir: file}).then((data) => {
-                dirContents.value = JSON.stringify(data);
-                router.push({ name: 'directory', params: { dirName: JSON.stringify(data) } });
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1);
-            }).catch((err) => {
-                console.error(err);
-            })
+            localStorage.setItem("currDir", file);
+            invoke("open_dir", {dir: file})
+                .then((data) => {
+                    dirContents.value = JSON.stringify(data);
+                    router.push({ name: 'directory', params: { dirName: JSON.stringify(data) } });
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1);
+                }).catch((err) => {
+                    console.error(err);
+                })
+        } else {
+            console.log(file);
+            router.push({ name: 'text', params: { fileName: JSON.stringify(file) } });
         }
     }
 
@@ -35,9 +40,9 @@
 </script>
 
 <template>
-    <ul class="w-screen p-4 bg-stone-900 flex flex-col gap-1">
+    <ul class="pt-14 w-screen p-4 bg-stone-900 flex flex-col gap-1">
         <li @dblclick="openDirectory(file)" v-for="file in dir" :key="file" 
-            class="text-white w-88 h-8 bg-zinc-600 flex items-center gap-1 text-sm cursor-pointer hover:bg-zinc-500 p-2"
+            class="text-white w-88 h-8 flex items-center gap-1 text-sm cursor-pointer hover:bg-zinc-500 p-2"
         >
             <img class="w-5 h-5" v-if="file.includes('.')" src="@src/assets/file.png" alt="">
             <img class="w-5 h-5" v-else src="@src/assets/directory.png" alt="">

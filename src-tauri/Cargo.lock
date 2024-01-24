@@ -2246,6 +2246,7 @@ dependencies = [
  "systemstat",
  "tauri",
  "tauri-build",
+ "walkdir",
 ]
 
 [[package]]

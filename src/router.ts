@@ -16,6 +16,11 @@ const routes = [
         name: "disks",
         component: () => import("./components/Disks.vue"),
     },
+    {
+        path: "/text:fileName",
+        name: "text",
+        component: () => import("./components/TextEditor.vue"),
+    },
 ];
 
 const router = createRouter({
