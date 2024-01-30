@@ -72,6 +72,10 @@ import FileImage from './FileImage.vue';
         });
     }
 
+    function copyPath(file: string) {
+        navigator.clipboard.writeText(file)
+    }
+
     onMounted(() => {
         if (useRoute().params.dirName === ':None') {
             return
@@ -84,23 +88,39 @@ import FileImage from './FileImage.vue';
         isEmpty.value = dir.value?.length! <= 0;
     });
 
+    function getItemNumber(): string {
+        if (!dir.value) return "";
+        return `repeat(${Math.ceil(dir.value.length / 2)}, 2rem)`
+    }
+
 </script>
 
 <template>
-    <ul class="pt-14 pb-14 w-screen min-h-screen p-4 bg-stone-900 flex flex-col gap-1 ">   
-        <li v-if="isEmpty" class="pointer-events-none rounded text-white text-center bg-zinc-800 p-2">
-            Directory empty or you do not have permissions to access this directory
+    <ul 
+        class="pt-14 pb-14 w-screen min-h-screen p-4 bg-stone-900 grid grid-cols-2 gap-1 "
+        :style="{ gridTemplateRows: getItemNumber()}"
+    >   
+        <li v-if="isEmpty" 
+            class="pointer-events-none rounded text-white row-span-1 col-span-2 text-center bg-zinc-800 p-2 flex items-center justify-center flex-col"
+        >
+            <img class="w-12" src="@assets/alert.png" alt="">
+            <p>
+                Directory empty or you do not have permissions to access this directory
+            </p>
+            <p>
+                If you are under your local user, it is possibly the former.
+            </p>
         </li>
         <li @dblclick="openDirectory(file)" v-for="file in dir" :key="file" 
-            class="text-white w-88 h-8 flex items-center gap-1 text-sm cursor-pointer hover:bg-zinc-500 p-2 relative"
+            class="text-white w-full h-8 flex items-center gap-1 text-sm cursor-pointer hover:bg-zinc-500 p-2 relative"
             @auxclick="showContext"
         >
             <FileImage :file="file"></FileImage>
             <p class="w-full overflow-hidden text-ellipsis text-nowrap inline-block whitespace-nowrap">
-                {{ file }}
+                {{ file.substring(file.lastIndexOf('\\') + 1) }}
             </p>
             <section 
-                class="context-menu rounded bg-zinc-800 w-52 h-52 absolute left-1/2 top-0 hidden p-2 z-10 shadow-md"
+                class="context-menu rounded bg-zinc-800 w-52 h-52 absolute left-24 top-0 hidden p-2 z-10 shadow-md"
             >
                 <ul class="h-full w-full flex flex-col gap-2">
                     <li 
@@ -108,6 +128,12 @@ import FileImage from './FileImage.vue';
                     >
                         <img class="p-1 h-full" src="@assets/copyFile.png" alt="" srcset="">
                         <strong @click="readToClipboard(file)">Copy as Text</strong>
+                    </li>
+                    <li 
+                        class="hover:bg-zinc-500 bg-zinc-700 p-2 rounded w-full h-10 flex gap-1"
+                    >
+                        <img class="p-1 h-full" src="@assets/copyFile.png" alt="" srcset="">
+                        <strong @click="copyPath(file)">Copy as Path</strong>
                     </li>
                     <li 
                         class="hover:bg-zinc-500 bg-zinc-700 p-2 rounded w-full h-10 flex gap-1"

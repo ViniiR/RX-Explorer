@@ -39,7 +39,7 @@
 
 <template>
     <ul>
-        <li class="w-full bg-zinc-800 cursor-pointer p-4 h-24 text-xs rounded flex gap-5 ">
+        <li class="w-full bg-zinc-800 p-4 pointer-events-none h-24 text-xs rounded flex gap-5 ">
             <div class="w-16 flex items-center h-full ">
                 <img src="@assets/cpu.png" alt="">
             </div>
@@ -55,7 +55,7 @@
                 </div>
             </section>
         </li>
-        <li class="w-full bg-zinc-800 cursor-pointer p-4 h-24 text-xs rounded flex gap-5" >
+        <li class="w-full bg-zinc-800 p-4 h-24 pointer-events-none text-xs rounded flex gap-5" >
             <div class="w-16 flex items-center h-full ">
                 <img src="@assets/ram.png" alt="">                
             </div>
@@ -83,7 +83,7 @@
                 </div>
             </section>
         </li>
-        <li class="w-full bg-zinc-800 cursor-pointer p-4 h-24 text-xs rounded flex gap-5" >
+        <li class="w-full bg-zinc-800 p-4 h-24 pointer-events-none text-xs rounded flex gap-5" >
             <div class="w-16 flex items-center h-full ">
                 <img src="@assets/swp.png" alt="">                
             </div>

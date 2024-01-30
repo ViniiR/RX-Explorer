@@ -10,6 +10,7 @@
     let directoryFormRef = ref<HTMLFormElement | null>(null);
     let currentTime = ref<string | null>(null);
     let currentDate = ref<string | null>(null)
+    let displayText = ref<HTMLDivElement | null>(null)
 
     const MONTHS_OF_THE_YEAR = [
         "Jan.",
@@ -107,15 +108,24 @@
         if (!file) {
             return
         }
-        invoke("search_file", {file, path: "C:\\Users\\Vinii"}).then((res) => {
+        let path = pwd.value
+        if (!path || path === 'root') {
+            path = "C:\\"
+        }
+        turnDisplayText("Searching...", true);
+        invoke("search_file", {file, path})
+        .then((res) => {
+            turnDisplayText('', false)
             let updatedRes = res as Array<string>;
             if (updatedRes.length < 1) {
-                updatedRes = ["No files found, change this output later pls im at NavVue line 43"]
+                updatedRes = ["No files found"]
             }
             router.push({name: 'directory', params: {dirName: JSON.stringify(updatedRes)}})
             setTimeout(() => {
                 window.location.reload();
             }, 1);
+        }).catch(() => {
+            showDisplayText("No files found")
         })
     }
 
@@ -199,10 +209,38 @@
         }
     })
     
+    function turnDisplayText(text: string, bool: boolean) {
+        if (!displayText.value) return;
+        if (bool) {
+            displayText.value.innerText = text;
+            displayText.value.style.display = 'flex';
+        } else {
+            displayText.value!.style.display = "none"
+        }
+    }
+    
+    function showDisplayText(text: string) {
+        if (!displayText.value) return;
+        displayText.value.innerText = text;
+        displayText.value.style.display = 'flex';
+        setTimeout(() => {
+            displayText.value!.style.display = "none"
+        }, 800);
+    }
+    
 </script>
 
 <template>
     <div class="w-full">
+        <div
+            ref="displayText"
+            class="
+                w-32 h-14 bg-stone-600 text-white rounded fixed top-10 z-10 left-1/2 -translate-x-1/2
+                p-2 items-center justify-center hidden 
+            "
+        >
+        ...
+        </div>
         <nav v-if="!(route.currentRoute.value.path as string).includes('/text')"
         v-show="!(route.currentRoute.value.path as string).includes('/text')"
         class="flex justify-between px-1 fixed w-full bg-inherit h-10 bg-zinc-800 z-20">

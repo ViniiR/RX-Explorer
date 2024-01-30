@@ -1,8 +1,10 @@
 use std::{env, fs::{self, create_dir, remove_dir, remove_file, File, OpenOptions},
     io::{Read, Write}, path::Path};
-use walkdir::WalkDir;
 use serde::Serialize;
 use sysinfo::Disks;
+use rayon::prelude::*;
+use walkdir::WalkDir;
+use std::sync::{Arc, Mutex};
 
 #[derive(Debug, Serialize)]
 pub struct Drive {
@@ -87,24 +89,37 @@ pub fn display_disks() -> Drive {
 }
 
 #[tauri::command]
-pub async fn search_file(file: &str, path: &str) -> Result<Vec<String>, String> {
-    let mut files = Vec::new();
-
-    for entry in WalkDir::new(path).into_iter().filter_map(|e| e.ok()) {
-        // println!("{:?}", entry);
-        if entry.file_type().is_file() {
-            let entry_file_name = entry.file_name().to_string_lossy();
-            if entry_file_name.contains(file) {
-                files.push(entry.path().display().to_string());
-            }
-        }
-    }
-
-    print!("end search");
-    
-    Ok(files)
+pub async fn open_with_app(path: String) {
+    let _ = open::commands(path)[0].status();
 }
 
+#[tauri::command]
+pub async fn search_file(path: &str, file: &str) -> Result<Vec<String>, String> {
+    let results = Arc::new(Mutex::new(vec![])); // Concurrent vector
+
+    WalkDir::new(path)
+        .into_iter()
+        .filter_map(|entry| entry.ok())
+        .par_bridge() // Parallelize with Rayon
+        .for_each(|entry| {
+            if let Some(file_name) = entry.file_name().to_str() {
+                if file_name.contains(file) {
+                    if let Some(path) = entry.path().to_str() {
+                        let mut results = results.lock().unwrap(); // Lock the mutex
+                        results.push(path.to_string());
+                    }
+                }
+            }
+        });
+
+    let results = results.lock().unwrap(); // Lock the mutex to get the results
+
+    if results.is_empty() {
+        Err("No matching files found".to_string())
+    } else {
+        Ok(results.clone()) // Return a clone of the results
+    }
+}
 
 #[tauri::command]
 pub async fn read_file(file_name: String) -> Result<String, String> {

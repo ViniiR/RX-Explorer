@@ -22,6 +22,7 @@ fn main() {
                 fl_mgr::create_directory,
                 fl_mgr::is_dir,
                 fl_mgr::delete_file,
+                fl_mgr::open_with_app,
             ]
         )
         .run(tauri::generate_context!())
