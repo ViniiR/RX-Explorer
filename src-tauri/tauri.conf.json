@@ -36,7 +36,7 @@
       {
         "fullscreen": false,
         "resizable": true,
-        "title": "rx_explorer",
+        "title": "RX Explorer",
         "width": 800,
         "height": 600
       }

@@ -1,4 +1,5 @@
-use std::{fs::{self, File}, io::Read};
+use std::{env, fs::{self, create_dir, remove_dir, remove_file, File, OpenOptions},
+    io::{Read, Write}, path::Path};
 use walkdir::WalkDir;
 use serde::Serialize;
 use sysinfo::Disks;
@@ -88,9 +89,9 @@ pub fn display_disks() -> Drive {
 #[tauri::command]
 pub async fn search_file(file: &str, path: &str) -> Result<Vec<String>, String> {
     let mut files = Vec::new();
-    print!("searching...");
 
     for entry in WalkDir::new(path).into_iter().filter_map(|e| e.ok()) {
+        // println!("{:?}", entry);
         if entry.file_type().is_file() {
             let entry_file_name = entry.file_name().to_string_lossy();
             if entry_file_name.contains(file) {
@@ -121,14 +122,113 @@ pub async fn read_file(file_name: String) -> Result<String, String> {
     let mut contents = String::new();
     match file.read_to_string(&mut contents) {
         Ok(_) => {
-            print!("File read succesfully")
+            print!("File read successfully")
         },
         Err(_) => {
             return Err(String::from("Error opening file, no permission"))
         }
     }
 
-    println!("{:?}", contents);
-
     Ok(contents.to_string())
+}
+
+#[tauri::command]
+pub async fn get_favorites() -> Vec<String> {
+    let home = env::var_os("HOME");
+    let favorites = vec![
+        "Downloads", "Documents", "Pictures"
+    ];
+    let mut directories = vec![home.clone().unwrap().to_str().unwrap().to_string()];
+    for item in favorites {
+        let home = home.as_ref().unwrap().to_str().unwrap();
+        directories.push(format!("{}\\{}", home, item))
+    }
+    directories
+}
+
+#[tauri::command]
+pub async fn save_file(file: String, text: String) {
+    let mut file = File::create(file).expect("error finding file");
+
+    match file.write_all(text.as_bytes()) {
+        Ok(_) => {
+            print!("File saved successfully");
+        },
+        Err(_) => {
+            print!("Error writing file");
+        },
+    }
+}
+
+
+#[tauri::command]
+pub async fn create_file(file_name: String, file_location: String) -> String {
+    let file_full_path = format!("{file_location}\\{file_name}");
+    let file = OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(&file_full_path);
+
+    match file {
+        Ok(_) => {
+            print!("file create successfully");
+        },
+        Err(_) => {
+            eprint!("failed to create file");
+        }
+    }
+    file_full_path
+}
+
+#[tauri::command]
+pub async fn create_directory(dir_name: String, dir_location: String)
+-> Result<String, String> 
+{
+    let path = format!("{dir_location}\\{dir_name}");
+    let path = Path::new(&path);
+
+    match create_dir(path) {
+        Ok(_) => {
+            Ok("Directory created successfully".to_string())
+        },
+        Err(_) => {
+            Err("Failed to create directory".to_string())
+        }
+    }
+}
+
+#[tauri::command]
+pub async fn is_dir(file: String) -> bool {
+    if let Ok(data) = fs::metadata(file) {
+        if data.is_dir() {
+            return true;
+        } else {
+            return false;
+        }
+    } else {
+        return false;
+    }
+}
+
+#[tauri::command]
+pub async fn delete_file(file_path: String) -> bool{
+    if is_dir(file_path.clone()).await {
+        match remove_dir(&file_path) {
+            Ok(_) => {
+                return true;
+            },
+            Err(_) => {
+                return false;
+            }
+        }
+    } else {
+        match remove_file(&file_path) {
+            Ok(_) => {
+                return true;
+            },
+            Err(_) => {
+                return false;
+            }
+        }
+    }
 }
