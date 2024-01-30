@@ -50,7 +50,7 @@ import FileImage from './FileImage.vue';
             console.error(err)
         }
     }
-    
+
     async function readToClipboard(fileName: string) {
         const content: string = await invoke("read_file", {fileName})
         navigator.clipboard.writeText(content)

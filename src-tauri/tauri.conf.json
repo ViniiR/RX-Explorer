@@ -7,7 +7,7 @@
   },
   "package": {
     "productName": "RX_explorer",
-    "version": "0.0.0"
+    "version": "0.0.1"
   },
   "tauri": {
     "allowlist": {
@@ -37,8 +37,8 @@
         "fullscreen": false,
         "resizable": true,
         "title": "RX Explorer",
-        "width": 800,
-        "height": 600
+        "width": 840,
+        "height": 700
       }
     ]
   }
