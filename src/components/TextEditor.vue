@@ -24,8 +24,10 @@
     })
     
     function goBack() {
-        const pwd = localStorage.getItem("currDir");
-        console.log(pwd);
+        let pwd = localStorage.getItem("currDir");
+        if (pwd === 'root' || !pwd) {
+            pwd = file.value.substring(file.value.lastIndexOf('\\'));
+        }
         if (pwd === 'root') return;
         invoke("open_dir", {dir: pwd}).then((data) => {
                 router.push(

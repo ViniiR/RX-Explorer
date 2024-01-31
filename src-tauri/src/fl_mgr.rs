@@ -1,5 +1,7 @@
-use std::{env, fs::{self, create_dir, remove_dir, remove_file, File, OpenOptions},
-    io::{Read, Write}, path::Path};
+use std::{env, 
+    fs::{self, create_dir, remove_dir_all, remove_file, File, OpenOptions},
+    io::{Read, Write}, path::Path
+};
 use serde::Serialize;
 use sysinfo::Disks;
 use rayon::prelude::*;
@@ -213,22 +215,22 @@ pub async fn create_directory(dir_name: String, dir_location: String)
 }
 
 #[tauri::command]
-pub async fn is_dir(file: String) -> bool {
+pub async fn is_dir(file: &str) -> Result<bool, bool> {
     if let Ok(data) = fs::metadata(file) {
         if data.is_dir() {
-            return true;
+            Ok(true)
         } else {
-            return false;
+            Ok(false)
         }
     } else {
-        return false;
+        Err(false)
     }
 }
 
 #[tauri::command]
-pub async fn delete_file(file_path: String) -> bool{
-    if is_dir(file_path.clone()).await {
-        match remove_dir(&file_path) {
+pub async fn delete_file(file_path: String) -> bool {
+    if is_dir(&file_path).await.expect("err") {
+        match remove_dir_all(&file_path) {
             Ok(_) => {
                 return true;
             },

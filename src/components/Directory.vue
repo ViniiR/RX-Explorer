@@ -14,7 +14,6 @@ import FileImage from './FileImage.vue';
         try {
             if (isDir) {
                 localStorage.setItem("currDir", file);
-                console.log(localStorage.getItem("currDir"));
                 const dirFiles = await invoke("open_dir", {dir: file})
                 const data = JSON.stringify(dirFiles);
                 dirContents.value = data
@@ -42,9 +41,9 @@ import FileImage from './FileImage.vue';
     }
 
     async function deleteFile(file: string) {
+        console.log(file);
         try {
-            invoke("delete_file", {filePath: file})
-            console.log(localStorage.getItem("currDir"));
+            await invoke("delete_file", {filePath: file})
             openDirectory(localStorage.getItem("currDir")!)
         } catch (err) {
             console.error(err)
@@ -136,22 +135,25 @@ import FileImage from './FileImage.vue';
                         <strong @click="readToClipboard(file)">Copy as Text</strong>
                     </li>
                     <li 
+                        @click="copyPath(file)"
                         class="hover:bg-zinc-500 bg-zinc-700 p-2 rounded w-full h-10 flex gap-1"
                     >
                         <img class="p-1 h-full" src="@assets/gitFile.png" alt="" srcset="">
-                        <strong @click="copyPath(file)">Copy as Path</strong>
+                        <strong >Copy as Path</strong>
                     </li>
                     <li 
+                        @click="openDifferentApp(file)"
                         class="hover:bg-zinc-500 bg-zinc-700 p-2 rounded w-full h-10 flex gap-1"
                     >
                         <img class="p-1 h-full" src="@assets/package.png" alt="" srcset="">
-                        <strong @click="openDifferentApp(file)">Open Default App</strong>
+                        <strong >Open Default App</strong>
                     </li>
                     <li 
+                        @click="deleteFile(file)"
                         class="hover:bg-zinc-500 bg-zinc-700 p-2 rounded w-full h-10 flex gap-1"
                     >
                         <img class="p-1 h-full" src="@assets/trash.png" alt="" srcset="">
-                        <strong @click="deleteFile(file)">Delete</strong>
+                        <strong >Delete</strong>
                     </li>
                 </ul>
             </section>
