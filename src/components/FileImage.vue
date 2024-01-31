@@ -62,6 +62,9 @@
         else if (ext === "rs") {
             return 'src/assets/rust-logo-blk.svg'
         }
+        else if (ext === "lnk") {
+            return "src/assets/linkFile.png"
+        }
         else {
             return ('src/assets/txt_10260761.png')
         }

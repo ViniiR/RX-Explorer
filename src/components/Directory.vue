@@ -88,6 +88,12 @@ import FileImage from './FileImage.vue';
         isEmpty.value = dir.value?.length! <= 0;
     });
 
+    async function openDifferentApp(file: string) {
+        if (!file) return;
+        await invoke("open_with_app", {path: file});
+
+    }
+
     function getItemNumber(): string {
         if (!dir.value) return "";
         return `repeat(${Math.ceil(dir.value.length / 2)}, 2rem)`
@@ -132,8 +138,14 @@ import FileImage from './FileImage.vue';
                     <li 
                         class="hover:bg-zinc-500 bg-zinc-700 p-2 rounded w-full h-10 flex gap-1"
                     >
-                        <img class="p-1 h-full" src="@assets/copyFile.png" alt="" srcset="">
+                        <img class="p-1 h-full" src="@assets/gitFile.png" alt="" srcset="">
                         <strong @click="copyPath(file)">Copy as Path</strong>
+                    </li>
+                    <li 
+                        class="hover:bg-zinc-500 bg-zinc-700 p-2 rounded w-full h-10 flex gap-1"
+                    >
+                        <img class="p-1 h-full" src="@assets/package.png" alt="" srcset="">
+                        <strong @click="openDifferentApp(file)">Open Default App</strong>
                     </li>
                     <li 
                         class="hover:bg-zinc-500 bg-zinc-700 p-2 rounded w-full h-10 flex gap-1"
