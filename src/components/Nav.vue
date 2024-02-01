@@ -297,7 +297,7 @@
                 </button>
             </section>
         </nav>
-        <RouterView @diskOpen="updateRef"></RouterView>
+        <RouterView @diskOpen="updateRef" @reqForUpdate="updateRef"></RouterView>
         <footer class="bottom-0 fixed h-10 w-full bg-zinc-800 text-white p-2 flex justify-between">
             <p>
                 {{ currentDate }}

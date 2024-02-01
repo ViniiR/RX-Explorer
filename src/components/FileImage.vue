@@ -13,10 +13,10 @@
     async function checkFileExtension(file: string): Promise<string> {
         const isDir = await invoke("is_dir", {file});
         if (isDir) {
-            return 'src/assets/directory.png'
+            return (await import('../assets/directory.png')).default
         }
         if (file[file.lastIndexOf('\\') + 1] === ".") {
-            return 'src/assets/config.png'
+            return (await import('../assets/config.png')).default
         }
         const ext = file.split(".").pop()
         const COMMON_IMG_EXT = 
@@ -33,45 +33,49 @@
             ["EXE", "MSI", "DLL", "BIN"];
         
         if (COMMON_IMG_EXT.includes(ext!.toUpperCase())) {
-            return 'src/assets/imageFile.png'
+            return (await import('../assets/imageFile.png')).default
         }
         else if (COMMON_ZIP_EXT.includes(ext!.toUpperCase())) {
-            return 'src/assets/zip.png'
+            return (await import('../assets/zip.png')).default
         }
         else if (COMMON_CONFIG_EXT.includes(ext!.toUpperCase())) {
-            return 'src/assets/config.png'
+            return (await import('../assets/config.png')).default
         }
         else if (COMMON_VIDEO_EXT.includes(ext!.toUpperCase())) {
-            return 'src/assets/video.png'
+            return (await import('../assets/video.png')).default
         }
         else if (COMMON_MUSIC_EXT.includes(ext!.toUpperCase())) {
-            return 'src/assets/music.png'
+            return (await import('../assets/music.png')).default
         }
         else if (COMMON_BINARY_EXT.includes(ext!.toUpperCase())) {
-            return ('src/assets/exe.png')
+            return (await import('../assets/exe.png')).default
         } 
         else if (ext === "pdf") {
-            return 'src/assets/pdf.png'
+            return (await import('../assets/pdf.png')).default
         }
         else if (ext === "ceres") {
-            return 'src/assets/ceresIcon.svg'
+            return (await import('../assets/ceresIcon.svg')).default
         }
         else if (ext === "c") {
-            return 'src/assets/cLogo.png'
+            return (await import('../assets/cLogo.png')).default
         }
         else if (ext === "rs") {
-            return 'src/assets/rust-logo-blk.svg'
+            return (await import('../assets/rust-logo-blk.svg')).default
         }
         else if (ext === "lnk") {
-            return "src/assets/linkFile.png"
+            return (await import("../assets/linkFile.png")).default
         }
         else {
-            return ('src/assets/txt_10260761.png')
+            return (await import('../assets/txt_10260761.png')).default
         }
     }
 
-    onMounted(async () => {
+    async function setImageIcons(file: string) {
         imageSrc.value = await checkFileExtension(file);
+    }
+
+    onMounted(() => {
+        setImageIcons(file);
     })
 
 </script>

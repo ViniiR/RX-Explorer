@@ -2,7 +2,7 @@ use std::thread;
 use std::time::Duration;
 use sysinfo::System;
 pub use systemstat::platform::{Platform, PlatformImpl as SystemS};
-use serde::Serialize;
+use serde_derive::Serialize;
 
 ///a struct to organize system status information returned by the main function on this file
 #[derive(Debug, Serialize)]

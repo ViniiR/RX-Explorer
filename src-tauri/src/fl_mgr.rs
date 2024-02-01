@@ -1,4 +1,4 @@
-use std::{env, 
+use std::{
     fs::{self, create_dir, remove_dir_all, remove_file, File, OpenOptions},
     io::{Read, Write}, path::Path
 };
@@ -7,7 +7,7 @@ use tokio::task;
 use serde::Serialize;
 use sysinfo::Disks;
 use walkdir::WalkDir;
-
+use dirs;
 /// Drive is a structure to represent windows Hard disks 
 /// it renames its properties to camelCase when sent to Javascript
 #[derive(Debug, Serialize)]
@@ -173,10 +173,11 @@ pub async fn read_file(file_name: String) -> Result<String, String> {
 ///retrieves the user's current user home directory and downloads, documents and pictures
 #[tauri::command]
 pub async fn get_favorites() -> Vec<String> {
-    let home = env::var_os("HOME");
+    let home = dirs::home_dir();
     let favorites = vec![
         "Downloads", "Documents", "Pictures"
     ];
+    dbg!(&home);
     let mut directories = vec![home.clone().unwrap().to_str().unwrap().to_string()];
     for item in favorites {
         let home = home.as_ref().unwrap().to_str().unwrap();

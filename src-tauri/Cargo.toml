@@ -1,6 +1,6 @@
 [package]
 name = "rx_explorer"
-version = "0.0.0"
+version = "0.0.2"
 description = "A Tauri App"
 authors = ["you"]
 license = "MIT"
@@ -21,6 +21,8 @@ systemstat = "0.2.3"
 walkdir = "2.4.0"
 open = "5.0.1"
 tokio = { version = "1.35.1", features = ["full"] }
+serde_derive = "1.0.196"
+dirs = "5.0.1"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem
