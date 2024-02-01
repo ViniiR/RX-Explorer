@@ -2,12 +2,14 @@ use std::{env,
     fs::{self, create_dir, remove_dir_all, remove_file, File, OpenOptions},
     io::{Read, Write}, path::Path
 };
+use tokio::sync::mpsc;
+use tokio::task;
 use serde::Serialize;
 use sysinfo::Disks;
-use rayon::prelude::*;
 use walkdir::WalkDir;
-use std::sync::{Arc, Mutex};
 
+/// Drive is a structure to represent windows Hard disks 
+/// it renames its properties to camelCase when sent to Javascript
 #[derive(Debug, Serialize)]
 pub struct Drive {
     name: String,
@@ -23,6 +25,8 @@ pub struct Drive {
     usage_percentage: String,
 }
 
+///open_dir is a tauri command that takes a String argument which represents the directory to be open
+///and returns a String Vector representing all the files inside a directory
 #[tauri::command]
 pub fn open_dir(dir: String) -> Vec<String> {
     let mut directories: Vec<String> = Vec::new();
@@ -48,6 +52,7 @@ pub fn open_dir(dir: String) -> Vec<String> {
     directories
 }
 
+///open_disk opens the provided windows hard drive
 #[tauri::command]
 pub fn open_disk(disk_name: String) -> Vec<String> {
     let c_drive_path = format!("{disk_name}:\\");
@@ -70,6 +75,7 @@ pub fn open_disk(disk_name: String) -> Vec<String> {
     directories
 }
 
+///display_disks displays all mounted windows hard drives and returns them to JavaScript
 #[tauri::command]
 pub fn display_disks() -> Drive {
     let disks = Disks::new_with_refreshed_list();
@@ -90,39 +96,54 @@ pub fn display_disks() -> Drive {
     }
 }
 
+///open_with_app opens the provided file path with its default program set up on the user's system
 #[tauri::command]
 pub async fn open_with_app(path: String) {
     let _ = open::commands(path)[0].status();
 }
 
+///search_file does a recursive, multi threaded search on the provided path, it only searches files and not directories
 #[tauri::command]
 pub async fn search_file(path: &str, file: &str) -> Result<Vec<String>, String> {
-    let results = Arc::new(Mutex::new(vec![])); // Concurrent vector
+    let (tx, mut rx) = mpsc::channel(100);
 
-    WalkDir::new(path)
-        .into_iter()
-        .filter_map(|entry| entry.ok())
-        .par_bridge() // Parallelize with Rayon
-        .for_each(|entry| {
+    for entry in WalkDir::new(path) {
+        let entry = match entry {
+            Ok(entry) => entry,
+            Err(_) => continue, // Skip files/directories that can't be read
+        };
+
+        let tx = tx.clone();
+        let file = file.to_string();
+
+        task::spawn(async move {
             if let Some(file_name) = entry.file_name().to_str() {
-                if file_name.contains(file) {
+                if file_name.contains(&file) {
                     if let Some(path) = entry.path().to_str() {
-                        let mut results = results.lock().unwrap(); // Lock the mutex
-                        results.push(path.to_string());
+                        tx.send(path.to_string()).await.unwrap();
                     }
                 }
             }
         });
+    }
 
-    let results = results.lock().unwrap(); // Lock the mutex to get the results
+    drop(tx); // Close the channel
+
+    let mut results = Vec::new();
+
+    while let Some(result) = rx.recv().await {
+        results.push(result);
+    }
 
     if results.is_empty() {
         Err("No matching files found".to_string())
     } else {
-        Ok(results.clone()) // Return a clone of the results
+        Ok(results) // No need to clone the results
     }
 }
 
+///reads the provided file path and returns a Result Ok raw string of all the file contents, returns a err string if it is unable to open the provided file,
+/// it may fail and return an error if such file requires super user privileges to be open and the app is not running on super user
 #[tauri::command]
 pub async fn read_file(file_name: String) -> Result<String, String> {
     let file = file_name;
@@ -149,6 +170,7 @@ pub async fn read_file(file_name: String) -> Result<String, String> {
     Ok(contents.to_string())
 }
 
+///retrieves the user's current user home directory and downloads, documents and pictures
 #[tauri::command]
 pub async fn get_favorites() -> Vec<String> {
     let home = env::var_os("HOME");
@@ -163,6 +185,8 @@ pub async fn get_favorites() -> Vec<String> {
     directories
 }
 
+///writes the provided string into the provided file path, no matter if the provided file already has content written in, it will rewrite over it
+/// if you are editing the file this is no big deal
 #[tauri::command]
 pub async fn save_file(file: String, text: String) {
     let mut file = File::create(file).expect("error finding file");
@@ -177,7 +201,7 @@ pub async fn save_file(file: String, text: String) {
     }
 }
 
-
+///creates a file with provided name on provided path if it already doesn't exist
 #[tauri::command]
 pub async fn create_file(file_name: String, file_location: String) -> String {
     let file_full_path = format!("{file_location}\\{file_name}");
@@ -197,6 +221,8 @@ pub async fn create_file(file_name: String, file_location: String) -> String {
     file_full_path
 }
 
+///creates a directory with provided name on provided path only if it already doesn't exist
+///if it does, it returns an err
 #[tauri::command]
 pub async fn create_directory(dir_name: String, dir_location: String)
 -> Result<String, String> 
@@ -214,6 +240,7 @@ pub async fn create_directory(dir_name: String, dir_location: String)
     }
 }
 
+///checks using the std::fs crate if the file on provided path is a directory or not
 #[tauri::command]
 pub async fn is_dir(file: &str) -> Result<bool, bool> {
     if let Ok(data) = fs::metadata(file) {
@@ -227,6 +254,9 @@ pub async fn is_dir(file: &str) -> Result<bool, bool> {
     }
 }
 
+///deletes the file or directory on provided path, if it has content inside it, it will do a recursive deletion on all nested files
+///it does not send files to trash can, they will be permanently deleted
+/// if the provided directory or path requires super user privileges without having so, it will return false
 #[tauri::command]
 pub async fn delete_file(file_path: String) -> bool {
     if is_dir(&file_path).await.expect("err") {

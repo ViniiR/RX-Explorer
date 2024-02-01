@@ -6,6 +6,7 @@
 mod tsk_mgr;
 mod fl_mgr;
 
+///the main entrance for the entire application, it builds the tauri app(i believe) and generates all tauri handler that can be invoked from JavaScript
 fn main() {
     tauri::Builder::default()
         .invoke_handler(

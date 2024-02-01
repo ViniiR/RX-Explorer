@@ -1,10 +1,10 @@
 use std::thread;
 use std::time::Duration;
-
 use sysinfo::System;
 pub use systemstat::platform::{Platform, PlatformImpl as SystemS};
 use serde::Serialize;
 
+///a struct to organize system status information returned by the main function on this file
 #[derive(Debug, Serialize)]
 pub struct SysStats {
     #[serde(rename = "cpuUsage")]
@@ -19,6 +19,7 @@ pub struct SysStats {
     pub swp_numbers: Vec<f64>,
 }
 
+///starts the task manager sub-app and is the main entrance for this file
 #[tauri::command]
 pub async fn start_tsk_mgr() -> SysStats {
     let mut sys = System::new_all();
@@ -34,7 +35,7 @@ pub async fn start_tsk_mgr() -> SysStats {
     }
 }
 
-//TODO: check this again it may be wrong
+///returns the system swap usage, also know as virtual ram, in bytes or in its percentage usage based on the bytes boolean var
 async fn get_swp_usage(sys: &System, bytes: bool) -> Result<String, Vec<f64>> {
     let total_swp: f64 = sys.total_swap() as f64;
     let used_swp: f64 = sys.used_swap() as f64;
@@ -47,6 +48,7 @@ async fn get_swp_usage(sys: &System, bytes: bool) -> Result<String, Vec<f64>> {
     }
 }
 
+///returns the current ram usage in total bytes or in percentage based on the bytes boolean var
 async fn get_ram_usage(sys: &System, bytes: bool) -> Result<String, Vec<f64>> {
     let total_ram: f64 = sys.total_memory() as f64;
     let used_ram: f64 = sys.used_memory() as f64;
@@ -59,6 +61,7 @@ async fn get_ram_usage(sys: &System, bytes: bool) -> Result<String, Vec<f64>> {
     }
 }
 
+///returns the current cpu usage percentage eg. 21.98
 async fn get_cpu_percentage(sys: &SystemS) -> String {
     let mut cpu_usage = String::new();
     match sys.cpu_load_aggregate() {
