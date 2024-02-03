@@ -62,7 +62,7 @@
 </script>
 
 <template>
-    <ul class="grid grid-rows-2 grid-cols-2 gap-1 w-full col-span-2 row-span-2">
+    <ul class="grid grid-rows-2 grid-cols-2 gap-1 h-max w-full col-span-2 row-span-2">
         <li class="w-full bg-zinc-800 cursor-pointer p-4 h-24 text-xs rounded flex gap-5 hover:bg-stone-800 col-span-1"
             @dblclick="openDirectory(homePath!)"
         >

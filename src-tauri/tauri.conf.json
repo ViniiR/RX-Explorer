@@ -6,8 +6,8 @@
     "distDir": "../dist"
   },
   "package": {
-    "productName": "RX_explorer",
-    "version": "0.0.2"
+    "productName": "RX Explorer",
+    "version": "0.0.3"
   },
   "tauri": {
     "allowlist": {
@@ -37,8 +37,8 @@
         "fullscreen": false,
         "resizable": true,
         "title": "RX Explorer",
-        "width": 840,
-        "height": 700
+        "width": 1120,
+        "height": 684
       }
     ]
   }

@@ -3,6 +3,7 @@
     import { invoke } from '@tauri-apps/api';
     import { onUpdated, ref } from 'vue';
     import { useRouter } from 'vue-router';
+import SideBar from './SideBar.vue';
 
     let pwd = ref<string | null>(localStorage.getItem("currDir"));
     const route = useRouter();
@@ -99,6 +100,15 @@
 
     function updateRef() {
         pwd.value = localStorage.getItem("currDir");
+    }
+
+    function updateFromFav() {
+        updateRef()
+        if (router.currentRoute.value.path.includes('/dir')) {
+            setTimeout(() => {
+                window.location.reload()
+            }, 10);
+        }
     }
 
     function searchFile(data: Event) {
@@ -242,8 +252,9 @@
         ...
         </div>
         <nav v-if="!(route.currentRoute.value.path as string).includes('/text')"
-        v-show="!(route.currentRoute.value.path as string).includes('/text')"
-        class="flex justify-between px-1 fixed w-full bg-inherit h-10 bg-zinc-800 z-20">
+            v-show="!(route.currentRoute.value.path as string).includes('/text')"
+            class="flex justify-between px-1 fixed w-full bg-inherit h-10 bg-zinc-800 z-20"
+        >
             <button @click="goDisk" class="text-white w-11 flex items-center justify-center hover:bg-zinc-600 rounded">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: white;transform: ;msFilter:;"><path d="m21.983 13.821-1.851-10.18A1.998 1.998 0 0 0 18.165 2H5.835a2 2 0 0 0-1.968 1.643l-1.85 10.178.019.003c-.012.06-.036.114-.036.176v5c0 1.103.897 2 2 2h16c1.103 0 2-.897 2-2v-5c0-.063-.024-.116-.035-.176l.018-.003zM5.835 4h12.331l1.637 9H4.198l1.637-9zM4 19v-4h16l.002 4H4z"></path><path d="M17 16h2v2h-2zm-3 0h2v2h-2z"></path></svg>
             </button>
@@ -297,7 +308,12 @@
                 </button>
             </section>
         </nav>
-        <RouterView @diskOpen="updateRef" @reqForUpdate="updateRef"></RouterView>
+        <div class="grid sidebar-wrapper grid-rows-1 custom-height-wrapper w-screen"
+            :style="{paddingTop: (route.currentRoute.value.path as string).includes('/text') ? '0px' : '40px'}"
+        >
+            <SideBar @diskOpen="updateFromFav" @favoriteOpen="updateFromFav"></SideBar>
+            <RouterView class="col-span-1 row-span-1" @diskOpen="updateRef" @reqForUpdate="updateRef"></RouterView>
+        </div>
         <footer class="bottom-0 fixed h-10 w-full bg-zinc-800 text-white p-2 flex justify-between">
             <p>
                 {{ currentDate }}
@@ -308,3 +324,12 @@
         </footer>
     </div>
 </template>
+
+<style scoped>
+    .sidebar-wrapper {
+        grid-template-columns: 200px 1fr;
+    }
+    .custom-height-wrapper {
+        height: calc(100vh - 40px);
+    }
+</style>

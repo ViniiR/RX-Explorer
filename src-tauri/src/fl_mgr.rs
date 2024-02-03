@@ -147,7 +147,6 @@ pub async fn search_file(path: &str, file: &str) -> Result<Vec<String>, String> 
 #[tauri::command]
 pub async fn read_file(file_name: String) -> Result<String, String> {
     let file = file_name;
-    println!("{:?}", file);
     let mut file = match File::open(file) {
         Ok(text) => {
             text
@@ -177,7 +176,6 @@ pub async fn get_favorites() -> Vec<String> {
     let favorites = vec![
         "Downloads", "Documents", "Pictures"
     ];
-    dbg!(&home);
     let mut directories = vec![home.clone().unwrap().to_str().unwrap().to_string()];
     for item in favorites {
         let home = home.as_ref().unwrap().to_str().unwrap();

@@ -102,7 +102,7 @@ import FileImage from './FileImage.vue';
 
 <template>
     <ul 
-        class="pt-14 pb-14 w-screen min-h-screen p-4 bg-stone-900 grid grid-cols-2 gap-1 "
+        class="pb-14 w-full custom-height p-4 bg-stone-900 grid grid-cols-2 gap-1 overflow-y-scroll"
         :style="{ gridTemplateRows: getItemNumber()}"
     >   
         <li v-if="isEmpty" 
@@ -160,3 +160,9 @@ import FileImage from './FileImage.vue';
         </li>
     </ul>
 </template>
+
+<style scoped>
+    .custom-height {
+        height: calc(100vh - 40px);
+    }
+</style>

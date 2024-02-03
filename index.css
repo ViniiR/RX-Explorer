@@ -9,7 +9,6 @@
 #app {
     min-height: 100vh;
     width: 100vw;
-    background-color: ;
 }
 
 ::-webkit-scrollbar {
@@ -36,6 +35,5 @@ body {
     margin: 0;
     outline: none;
     max-width: 100%;
-    scrollbar-gutter: stable;
 }
 

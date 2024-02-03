@@ -109,7 +109,7 @@
             v-model="fileInitialContent"
             spellcheck="false"
             name="editor" id="editor"
-            class="glass text-area-font text-sm w-full h-screen bg-transparent resize-none ps-5 pt-2 text-white pb-1"
+            class="glass text-area-font text-sm w-full text-height bg-transparent resize-none ps-5 pt-2 text-white pb-1"
         ></textarea>
         <!-- <footer class="text-white fixed bottom-0 bg-stone-800 p-2 w-full">
             shows current line or info idk 
@@ -122,6 +122,10 @@
     
     .text-area-font {
         font-family: "Roboto Mono";
+    }
+
+    .text-height {
+        height: calc(100vh - 50px);
     }
 
     .glass {
