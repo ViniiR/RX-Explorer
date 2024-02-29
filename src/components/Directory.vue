@@ -98,12 +98,15 @@ import FileImage from './FileImage.vue';
         return `repeat(${Math.ceil(dir.value.length / 2)}, 2rem)`
     }
 
+    const preventContext = (event: Event) => event.preventDefault();
+
 </script>
 
 <template>
     <ul 
         class="pb-14 w-full custom-height p-4 bg-stone-900 grid grid-cols-2 gap-1 overflow-y-scroll"
         :style="{ gridTemplateRows: getItemNumber()}"
+        v-on:contextmenu="preventContext"
     >   
         <li v-if="isEmpty" 
             class="pointer-events-none rounded text-white row-span-1 col-span-2 text-center bg-zinc-800 p-2 flex items-center justify-center flex-col"
